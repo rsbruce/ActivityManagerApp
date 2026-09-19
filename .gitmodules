@@ -1,6 +1,6 @@
 [submodule "sync_server"]
 	path = sync_server
-	url = git@github.com:rsbruce/sync_server.git
+	url = git@github.com:rsbruce/single-player-sync-server.git
 [submodule "vue-activity-manager"]
 	path = vue-activity-manager
 	url = git@github.com:rsbruce/vue-activity-manager.git
