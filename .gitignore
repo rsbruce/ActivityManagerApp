@@ -8,3 +8,6 @@ data/
 .claude/
 .DS_Store
 node_modules/
+
+# The sync engine is an npm dependency, not part of this repo
+sync_engine_ts/

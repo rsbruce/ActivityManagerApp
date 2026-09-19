@@ -1,6 +1,3 @@
-[submodule "sync_engine_ts"]
-	path = sync_engine_ts
-	url = git@github.com:rsbruce/sync-engine-ts.git
 [submodule "sync_server"]
 	path = sync_server
 	url = git@github.com:rsbruce/sync_server.git

@@ -4,9 +4,10 @@ A local-first personal activity manager: a Vue 3 + Capacitor client backed by a
 custom SQLite sync engine, so the same data works offline on device and syncs
 across devices through a small self-hosted server.
 
-This umbrella repo bundles the three components as git submodules and wires them
-together with Docker Compose, so you can clone it and run the whole system with
-one command.
+This umbrella repo bundles the app's two services as git submodules and wires
+them together with Docker Compose, so you can clone it and run the whole system
+with one command. The sync engine is a published npm package (a dependency of
+both services), not vendored here.
 
 ## Architecture
 
@@ -14,9 +15,9 @@ Three independently-published repos, layered:
 
 | Component | Repo | Role |
 |---|---|---|
-| **Sync engine** | [sync-engine-ts](https://github.com/rsbruce/sync-engine-ts) | The sync algorithm as a standalone library (`single-player-sync` on npm). Last-writer-wins over row-level `updated_at`; SQLite-agnostic via an adapter interface. Consumed by both the server and the client. |
-| **Sync server** | [sync_server](https://github.com/rsbruce/sync_server) | A small Hono service (Node's built-in `node:sqlite`) holding one SQLite database per user. Symmetric `/sync` endpoint; JWT auth with rotating refresh tokens. |
-| **Client** | [vue-activity-manager](https://github.com/rsbruce/vue-activity-manager) | Vue 3 (`<script setup>`) + Capacitor app. Runs against an in-browser SQLite (WASM) on the web and native SQLite on Android. |
+| **Sync engine** | [sync-engine-ts](https://github.com/rsbruce/sync-engine-ts) | The sync algorithm as a standalone library ([`single-player-sync`](https://www.npmjs.com/package/single-player-sync) on npm). Last-writer-wins over row-level `updated_at`; SQLite-agnostic via an adapter interface. Pulled from npm by both services below — not a submodule. |
+| **Sync server** | [sync_server](https://github.com/rsbruce/sync_server) | A small Hono service (Node's built-in `node:sqlite`) holding one SQLite database per user. Symmetric `/sync` endpoint; JWT auth with rotating refresh tokens. *(submodule)* |
+| **Client** | [vue-activity-manager](https://github.com/rsbruce/vue-activity-manager) | Vue 3 (`<script setup>`) + Capacitor app. Runs against an in-browser SQLite (WASM) on the web and native SQLite on Android. *(submodule)* |
 
 **How they connect:** the client owns the source of truth locally and works fully
 offline. When online and logged in, it pushes/pulls row deltas to the server via
@@ -28,8 +29,8 @@ device's changes. The engine is the shared brain that both sides run.
 Requires Docker (with Compose v2).
 
 ```bash
-git clone --recurse-submodules https://github.com/rsbruce/activity-manager.git
-cd activity-manager
+git clone --recurse-submodules https://github.com/rsbruce/ActivityManagerApp.git
+cd ActivityManagerApp
 docker compose up
 ```
 
@@ -76,11 +77,13 @@ with the same account to watch changes propagate.
 - **This is a dev/review setup.** The web app runs via the Vite dev server
   (unminified, hot-reload) — deliberately transparent and quick to start, not a
   production build. The default secrets are insecure by design.
-- **Submodules pin exact commits.** To move a component to its latest, `cd` into
-  the submodule, `git pull`, then commit the updated pointer here.
+- **The two service submodules pin exact commits.** To move one to its latest,
+  `cd` into the submodule, `git pull`, then commit the updated pointer here. The
+  sync engine tracks its npm version instead — bump the `single-player-sync`
+  range in each service's `package.json` to move it.
 - The Android build of the client is out of scope for this stack; see the client
   repo for Capacitor build instructions.
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Each submodule is MIT-licensed in its own repo.
+MIT — see [LICENSE](LICENSE). Each component repo is MIT-licensed in its own right.
