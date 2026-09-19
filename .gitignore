@@ -1,0 +1,10 @@
+# Real secrets (dev defaults live in docker-compose.yml / .env.example)
+.env
+
+# Runtime user databases created by the server
+data/
+
+# Local tooling / OS cruft
+.claude/
+.DS_Store
+node_modules/

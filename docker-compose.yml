@@ -1,0 +1,48 @@
+# Umbrella dev stack for the activity-manager project.
+#
+#   docker compose up
+#   → open http://localhost:5173
+#
+# Two processes:
+#   server  — the sync backend (Hono + node:sqlite), on http://localhost:9000
+#   web     — the Vue app, served by the Vite dev server on http://localhost:5173
+#
+# The app is local-first: it works in the browser immediately, no login. Sync is
+# opt-in — see the README for the one first-run step to enable it.
+#
+# The environment values below are INSECURE DEV DEFAULTS so the stack runs with
+# zero setup. Override them (copy .env.example → .env) for anything real.
+
+services:
+  server:
+    build:
+      context: ./sync_server
+      args:
+        LIB_VERSION: "^0.2.1"
+    ports:
+      - "9000:9000"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-dev-only-insecure-change-me}
+      SIGNUP_SECRET: ${SIGNUP_SECRET:-letmein}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:5173}
+      AUTH_REQUIRED: ${AUTH_REQUIRED:-true}
+    volumes:
+      - ./data:/data/users
+    restart: unless-stopped
+
+  web:
+    image: node:22-slim
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host --port 5173"
+    environment:
+      VITE_SYNC_URL: ${VITE_SYNC_URL:-http://localhost:9000}
+    volumes:
+      - ./vue-activity-manager:/app
+      - web_node_modules:/app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - server
+
+volumes:
+  web_node_modules:
