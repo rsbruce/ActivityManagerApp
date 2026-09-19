@@ -74,9 +74,10 @@ with the same account to watch changes propagate.
 
 ## Notes
 
-- **This is a dev/review setup.** The web app runs via the Vite dev server
-  (unminified, hot-reload) — deliberately transparent and quick to start, not a
-  production build. The default secrets are insecure by design.
+- **This is a review setup.** The web app is built and served by Vite's
+  `preview` server (a production build; the container runs `npm run build` on
+  start, so first boot takes a minute or two). The default secrets are insecure
+  by design — override them for anything real.
 - **The two service submodules pin exact commits.** To move one to its latest,
   `cd` into the submodule, `git pull`, then commit the updated pointer here. The
   sync engine tracks its npm version instead — bump the `single-player-sync`

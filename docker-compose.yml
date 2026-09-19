@@ -33,7 +33,13 @@ services:
   web:
     image: node:22-slim
     working_dir: /app
-    command: sh -c "npm install && npm run dev -- --host --port 5173"
+    # Build + preview, NOT `dev`: jeep-sqlite fetches /assets/sql-wasm.wasm at
+    # runtime, but Vite's dev server reserves the /assets/ prefix for its own
+    # transform pipeline and won't serve public/assets/* there — so the SQLite
+    # WASM 404s (returns index.html) under `dev`. A production build copies
+    # public/ into dist/ and Vite's preview server serves /assets/*.wasm
+    # correctly. VITE_SYNC_URL is baked in at build time.
+    command: sh -c "npm install && npm run build && npm run preview -- --host --port 5173"
     environment:
       VITE_SYNC_URL: ${VITE_SYNC_URL:-http://localhost:9000}
     volumes:
